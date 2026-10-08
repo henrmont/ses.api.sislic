@@ -53,19 +53,19 @@ Route::middleware(['api', Auth::class])
         Route::delete('{role}', 'deleteRole')->name('destroy');
     });
 
-Route::middleware(['api', Auth::class])
-    ->prefix('sislic/workstations')
-    ->name('workstations.')
-    ->controller(WorkstationController::class)
-    ->group(function () {
-        // Listagem
-        Route::get('/', 'getWorkstations')->name('index');
+// Route::middleware(['api', Auth::class])
+//     ->prefix('sislic/workstations')
+//     ->name('workstations.')
+//     ->controller(WorkstationController::class)
+//     ->group(function () {
+//         // Listagem
+//         Route::get('/', 'getWorkstations')->name('index');
 
-        // CRUD principal
-        Route::post('/', 'createWorkstation')->name('store');
-        Route::put('{workstation}', 'updateWorkstation')->name('update');
-        Route::delete('{workstation}', 'deleteWorkstation')->name('destroy');
-    });
+//         // CRUD principal
+//         Route::post('/', 'createWorkstation')->name('store');
+//         Route::put('{workstation}', 'updateWorkstation')->name('update');
+//         Route::delete('{workstation}', 'deleteWorkstation')->name('destroy');
+//     });
 
 Route::middleware(['api', Auth::class])
     ->prefix('sislic/dfds')

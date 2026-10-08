@@ -25,7 +25,7 @@ class FDWSeeder extends Seeder
         // 2. Mapeamento das tabelas por módulo
         $tablesMap = [
             'auth' => 'users,permissions,roles,model_has_permissions,model_has_roles,role_has_permissions,modules,user_modules',
-            'core' => 'workstations',
+            'core' => 'workplaces',
             'datasus' => 'competences,cids',
             'storage' => 'archives',
         ];

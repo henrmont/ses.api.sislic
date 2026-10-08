@@ -14,9 +14,8 @@ class Professional extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'type',
-        'cns',
         'registration',
+        'phone'
     ];
 
     // Relationships
@@ -25,14 +24,9 @@ class Professional extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function workstations()
+    public function types(): HasMany
     {
-        return $this->belongsToMany(Workstation::class, 'professional_workstations')->withPivot('id');
-    }
-
-    public function validateDfds(): HasMany
-    {
-        return $this->hasMany(Dfd::class, 'validate_professional_id');
+        return $this->hasMany(ProfessionalType::class);
     }
     
 }
