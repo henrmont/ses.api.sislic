@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Professional;
-use App\Models\ProfessionalWorkstation;
 use App\Models\User;
-use App\Models\Workstation;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +18,13 @@ class UserController extends Controller
         protected UserService $userService
     ) {}
 
+    public function getMe(): JsonResponse
+    {
+        $me = User::with('roles.permissions', 'professional.types')->find(auth()->id());
+
+        return response()->json($me, JsonResponse::HTTP_OK);
+    }
+
     /**
      * Listar usuários do sistema TFD.
      */
@@ -29,7 +34,7 @@ class UserController extends Controller
 
         $users = User::query()
             ->sislic()
-            ->with(['roles', 'professional.workstations'])
+            ->with(['roles', 'professional.types'])
             ->where('email', '!=', 'admin@sislic.com')
             ->latest('id')
             ->get();
@@ -50,18 +55,6 @@ class UserController extends Controller
             ->get();
 
         return response()->json($roles, JsonResponse::HTTP_OK);
-    }
-
-    /**
-     * Listar estações de trabalho associadas a um usuário.
-     */
-    public function getUserWorkstations(User $user): JsonResponse
-    {
-        $this->authorize('sislic/usuário listar');
-
-        $workstations = $user->professional->workstations;
-
-        return response()->json($workstations, JsonResponse::HTTP_OK);
     }
 
     /**
@@ -122,20 +115,6 @@ class UserController extends Controller
         $this->authorize('sislic/usuário atualizar');
 
         return $this->userService->rolesUser($user, $request);
-    }
-
-    public function attachWorkstation(Professional $professional, Workstation $workstation): JsonResponse
-    {
-        $this->authorize('sislic/usuário atualizar');
-
-        return $this->userService->attachWorkstation($professional, $workstation);
-    }
-
-    public function detachWorkstation(ProfessionalWorkstation $professional_workstation): JsonResponse
-    {
-        $this->authorize('sislic/usuário atualizar');
-
-        return $this->userService->detachWorkstation($professional_workstation);
     }
 
     /*

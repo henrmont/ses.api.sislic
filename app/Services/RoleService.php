@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Module;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -14,13 +13,6 @@ use Spatie\Permission\Models\Role;
 
 class RoleService
 {
-    protected ?Module $module;
-
-    public function __construct()
-    {
-        $this->module = Module::where('name', 'sislic')->first();
-    }
-    
     /**
      * Criar uma nova regra no sistema com suas permissões.
      */
@@ -30,7 +22,7 @@ class RoleService
             DB::beginTransaction();
 
             $role = Role::on('auth')->create([
-                'name' => $this->module->name . '/' . $request->name,
+                'name' => 'sislic/' . $request->name,
             ]);
 
             $selectedPermissions = Permission::findMany($request->permissions);
@@ -58,7 +50,7 @@ class RoleService
             DB::beginTransaction();
 
             $role->update([
-                'name' => $this->module->name . '/' . $request->name,
+                'name' => 'sislic/' . $request->name,
             ]);
 
             $selectedPermissions = Permission::findMany($request->permissions);
@@ -94,10 +86,10 @@ class RoleService
     }
 
     /**
-     * Retorna as permissões padrão obrigatórias do módulo TFD.
+     * Retorna as permissões padrão obrigatórias do módulo sislic.
      */
     private function getDefaultPermissions(): Collection
     {
-        return Permission::whereIn('name', [$this->module->name . '/voltar', $this->module->name . '/download'])->get();
+        return Permission::whereIn('name', ['sislic/voltar', 'sislic/download'])->get();
     }
 }

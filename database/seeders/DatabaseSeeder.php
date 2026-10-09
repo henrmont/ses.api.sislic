@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
                 ['user_id' => $admUser->id],
                 [
                     'name'         => $admUser->name ?? 'Administrador',
-                    'cns'          => '000000000000000',
+                    'phone'        => '0000000000',
                     'registration' => '000000',
                 ]
             );
