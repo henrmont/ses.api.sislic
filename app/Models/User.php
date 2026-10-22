@@ -102,6 +102,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(Professional::class);
     }
 
+    public function workplaces(): BelongsToMany
+    {
+        return $this->belongsToMany(Workplace::class, 'user_workplaces');
+    }
+
     // Accessors & Mutators
     protected $appends = [
         'module',

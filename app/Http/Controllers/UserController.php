@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Professional;
 use App\Models\User;
+use App\Models\UserWorkplace;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -34,7 +35,7 @@ class UserController extends Controller
 
         $users = User::query()
             ->sislic()
-            ->with(['roles', 'professional.types'])
+            ->with(['roles', 'professional.types', 'workplaces'])
             ->where('email', '!=', 'admin@sislic.com')
             ->latest('id')
             ->get();
@@ -115,6 +116,42 @@ class UserController extends Controller
         $this->authorize('sislic/usuário atualizar');
 
         return $this->userService->rolesUser($user, $request);
+    }
+
+    /**
+     * Listar os locais de trabalho vinculados a um usuário.
+     * GET /api/users/{user}/workplaces
+     */
+    public function getUserWorkplaces(User $user): JsonResponse
+    {
+        $this->authorize('sislic/usuário listar');
+
+        $workplaces = $user->workplaces()
+            ->get();
+
+        return response()->json($workplaces, JsonResponse::HTTP_OK);
+    }
+
+    /**
+     * Vincular um local de trabalho ao usuário.
+     * POST /api/users/{user}/workplaces
+     */
+    public function attachWorkplace(User $user, Request $request)
+    {
+        $this->authorize('sislic/usuário atualizar');
+
+        return $this->userService->attachWorkplace($user, $request);
+    }
+
+    /**
+     * Remover o vínculo de um local de trabalho com o usuário.
+     * DELETE /api/users/{user}/workplaces/{workplaceId}
+     */
+    public function detachWorkplace(User $user, UserWorkplace $user_workplace)
+    {
+        $this->authorize('sislic/usuário atualizar');
+
+        return $this->userService->detachWorkplace($user, $user_workplace);
     }
 
     /*

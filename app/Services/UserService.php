@@ -6,6 +6,7 @@ use App\Models\Module;
 use App\Models\Professional;
 use App\Models\User;
 use App\Models\UserModule;
+use App\Models\UserWorkplace;
 use Exception;
 use Illuminate\Database\Connection;
 use Illuminate\Http\JsonResponse;
@@ -26,7 +27,7 @@ class UserService
     }
 
     /**
-     * Conexão com o banco Core.
+     * Conexão com o banco Auth.
      */
     private function auth(): Connection
     {
@@ -246,6 +247,39 @@ class UserService
             $user->syncRoles($roles);
 
             return response()->json(['message' => 'Regras do usuário atualizadas com sucesso.'], JsonResponse::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('Erro ao atualizar regras do usuário: ' . $e->getMessage());
+
+            return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        }
+    }
+
+
+    /**
+     * Vincular workplace ao usuário
+     */
+    public function attachWorkplace(User $user, Request $request): JsonResponse
+    {
+        try {
+            $user->workplaces()->syncWithoutDetaching($request->workplace_id);
+
+            return response()->json(['message' => 'Local de trabalho vinculado com sucesso.'], JsonResponse::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('Erro ao atualizar regras do usuário: ' . $e->getMessage());
+
+            return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Desvincular workplace do usuário
+     */
+    public function detachWorkplace(User $user, UserWorkplace $user_workplace): JsonResponse
+    {
+        try {
+            $user_workplace->delete();
+
+            return response()->json(['message' => 'Local de trabalho desvinculado com sucesso.'], JsonResponse::HTTP_OK);
         } catch (Exception $e) {
             Log::error('Erro ao atualizar regras do usuário: ' . $e->getMessage());
 

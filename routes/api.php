@@ -6,6 +6,7 @@ use App\Http\Controllers\EtpController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkplaceController;
 use App\Http\Controllers\WorkstationController;
 use App\Http\Middleware\Auth;
 use Illuminate\Http\Request;
@@ -25,6 +26,11 @@ Route::middleware(['api', Auth::class])
         Route::post('/', 'createUser')->name('store');
         Route::put('{user}', 'updateUser')->name('update');
         Route::delete('{user}', 'deleteUser')->name('destroy');
+
+        // Locais de trabalho (Workplaces)
+        Route::get('{user}/workplaces', 'getUserWorkplaces')->name('workplaces.index');
+        Route::post('{user}/workplaces', 'attachWorkplace')->name('workplaces.store');
+        Route::delete('{user}/workplaces/{user_workplace}', 'detachWorkplace')->name('workplaces.destroy');
 
         // Ações de estado e relacionamentos
         Route::patch('{user}/lock', 'lockUser')->name('lock');
@@ -49,4 +55,18 @@ Route::middleware(['api', Auth::class])
         Route::post('/', 'createRole')->name('store');
         Route::put('{role}', 'updateRole')->name('update');
         Route::delete('{role}', 'deleteRole')->name('destroy');
+    });
+
+Route::middleware(['api', Auth::class])
+    ->prefix('sislic/workplaces')
+    ->name('workplaces.')
+    ->controller(WorkplaceController::class)
+    ->group(function () {
+        // Listagem e Exibição (Read)
+        Route::get('/', 'getWorkplaces')->name('index');
+
+        // Escrita e Modificação (Create, Update, Delete)
+        Route::post('/', 'createWorkplace')->name('store');
+        Route::put('{workplace}', 'updateWorkplace')->name('update');
+        Route::delete('{workplace}', 'deleteWorkplace')->name('destroy');
     });
