@@ -4,9 +4,9 @@ namespace App\Services;
 
 use App\Models\Module;
 use App\Models\Professional;
+use App\Models\ProfessionalWorkplace;
 use App\Models\User;
 use App\Models\UserModule;
-use App\Models\UserWorkplace;
 use Exception;
 use Illuminate\Database\Connection;
 use Illuminate\Http\JsonResponse;
@@ -254,34 +254,33 @@ class UserService
         }
     }
 
-
     /**
-     * Vincular workplace ao usuário
+     * Vincular workplace ao profissional
      */
-    public function attachWorkplace(User $user, Request $request): JsonResponse
+    public function attachWorkplace(Professional $professional, Request $request): JsonResponse
     {
         try {
-            $user->workplaces()->syncWithoutDetaching($request->workplace_id);
+            $professional->workplaces()->syncWithoutDetaching($request->workplace_id);
 
             return response()->json(['message' => 'Local de trabalho vinculado com sucesso.'], JsonResponse::HTTP_OK);
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar regras do usuário: ' . $e->getMessage());
+            Log::error('Erro ao vincular local de trabalho ao profissional: ' . $e->getMessage());
 
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
     /**
-     * Desvincular workplace do usuário
+     * Desvincular workplace do profissional
      */
-    public function detachWorkplace(User $user, UserWorkplace $user_workplace): JsonResponse
+    public function detachWorkplace(Professional $professional, ProfessionalWorkplace $professional_workplace): JsonResponse
     {
         try {
-            $user_workplace->delete();
+            $professional_workplace->delete();
 
             return response()->json(['message' => 'Local de trabalho desvinculado com sucesso.'], JsonResponse::HTTP_OK);
         } catch (Exception $e) {
-            Log::error('Erro ao atualizar regras do usuário: ' . $e->getMessage());
+            Log::error('Erro ao desvincular local de trabalho do profissional: ' . $e->getMessage());
 
             return response()->json(['message' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }

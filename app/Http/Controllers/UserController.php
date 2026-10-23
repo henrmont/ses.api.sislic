@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Professional;
+use App\Models\ProfessionalWorkplace;
 use App\Models\User;
-use App\Models\UserWorkplace;
 use App\Services\UserService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -21,7 +21,7 @@ class UserController extends Controller
 
     public function getMe(): JsonResponse
     {
-        $me = User::with('roles.permissions', 'professional.types')->find(auth()->id());
+        $me = User::with('roles.permissions', 'professional.types', 'professional.workplaces')->find(auth()->id());
 
         return response()->json($me, JsonResponse::HTTP_OK);
     }
@@ -35,7 +35,7 @@ class UserController extends Controller
 
         $users = User::query()
             ->sislic()
-            ->with(['roles', 'professional.types', 'workplaces'])
+            ->with(['roles', 'professional.types', 'professional.workplaces'])
             ->where('email', '!=', 'admin@sislic.com')
             ->latest('id')
             ->get();
@@ -119,39 +119,38 @@ class UserController extends Controller
     }
 
     /**
-     * Listar os locais de trabalho vinculados a um usuário.
-     * GET /api/users/{user}/workplaces
+     * Listar os locais de trabalho vinculados a um profissional.
+     * GET /api/sislic/users/professionals/{professional}/workplaces
      */
-    public function getUserWorkplaces(User $user): JsonResponse
+    public function getProfessionalWorkplaces(Professional $professional): JsonResponse
     {
         $this->authorize('sislic/usuário listar');
 
-        $workplaces = $user->workplaces()
-            ->get();
+        $workplaces = $professional->workplaces()->get();
 
         return response()->json($workplaces, JsonResponse::HTTP_OK);
     }
 
     /**
-     * Vincular um local de trabalho ao usuário.
-     * POST /api/users/{user}/workplaces
+     * Vincular um local de trabalho ao profissional.
+     * POST /api/sislic/users/professionals/{professional}/workplaces
      */
-    public function attachWorkplace(User $user, Request $request)
+    public function attachWorkplace(Professional $professional, Request $request)
     {
         $this->authorize('sislic/usuário atualizar');
 
-        return $this->userService->attachWorkplace($user, $request);
+        return $this->userService->attachWorkplace($professional, $request);
     }
 
     /**
-     * Remover o vínculo de um local de trabalho com o usuário.
-     * DELETE /api/users/{user}/workplaces/{workplaceId}
+     * Remover o vínculo de um local de trabalho com o profissional.
+     * DELETE /api/sislic/users/professionals/{professional}/workplaces/{professional_workplace}
      */
-    public function detachWorkplace(User $user, UserWorkplace $user_workplace)
+    public function detachWorkplace(Professional $professional, ProfessionalWorkplace $professional_workplace)
     {
         $this->authorize('sislic/usuário atualizar');
 
-        return $this->userService->detachWorkplace($user, $user_workplace);
+        return $this->userService->detachWorkplace($professional, $professional_workplace);
     }
 
     /*
@@ -171,21 +170,6 @@ class UserController extends Controller
             ->sislic()
             ->where('email', $email)
             ->when($currentEmail, fn ($query) => $query->where('email', '!=', $currentEmail))
-            ->exists();
-
-        return response()->json($exists, JsonResponse::HTTP_OK);
-    }
-
-    /**
-     * Verifica se o CNS informado já existe no banco.
-     */
-    public function cnsUserExists(string $cns, ?string $currentCns = null): JsonResponse
-    {
-        $this->authorize('sislic/usuário listar');
-
-        $exists = Professional::query()
-            ->where('cns', $cns)
-            ->when($currentCns, fn ($query) => $query->where('cns', '!=', $currentCns))
             ->exists();
 
         return response()->json($exists, JsonResponse::HTTP_OK);
